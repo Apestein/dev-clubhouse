@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next"
 import dbConnect from "lib/dbConnect"
-import User from "models/User"
+import User from "@/models/User"
+import Message from "@/models/Message"
 
 export default async function handler(
   req: NextApiRequest,
@@ -13,20 +14,40 @@ export default async function handler(
   switch (method) {
     case "GET":
       try {
-        const user = await User.find({}) /* find all the data in our database */
-        res.status(200).json({ success: true, data: user })
+        const messages = await Message.find({}, { __v: 0 })
+        res.status(200).json(messages)
       } catch (error) {
         res.status(400).json({ success: false })
       }
       break
     case "POST":
       try {
-        const user = await User.create(req.body)
-        res.status(201).json({ success: true, data: user })
+        console.log(req.body)
+        const message = await Message.create(req.body)
+        res.status(201).json({ data: message })
       } catch (error) {
         res.status(400).json({ success: false })
       }
       break
+    case "PUT":
+      try {
+        const { _id, update } = req.body
+        const message = await Message.updateOne(
+          { _id: _id },
+          { $set: { content: update } }
+        )
+        res.status(200).json({ success: message })
+      } catch (error) {
+        res.status(400).json({ success: false })
+      }
+    case "DELETE":
+      try {
+        const id = req.body._id
+        const message = await Message.deleteOne({ _id: id })
+        res.status(200).json({ success: message })
+      } catch (error) {
+        res.status(400).json({ success: false })
+      }
     default:
       res.status(400).json({ success: false })
       break
