@@ -22,7 +22,6 @@ export default async function handler(
       break
     case "POST":
       try {
-        console.log(req.body)
         const message = await Message.create(req.body)
         res.status(201).json({ data: message })
       } catch (error) {
@@ -40,6 +39,7 @@ export default async function handler(
       } catch (error) {
         res.status(400).json({ success: false })
       }
+      break
     case "DELETE":
       try {
         const id = req.body._id
@@ -48,8 +48,8 @@ export default async function handler(
       } catch (error) {
         res.status(400).json({ success: false })
       }
+      break
     default:
       res.status(400).json({ success: false })
-      break
   }
 }

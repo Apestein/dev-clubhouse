@@ -4,6 +4,7 @@ import User from "models/User"
 import Message from "models/Message"
 import useSWR from "swr"
 import { AiFillEdit, AiFillDelete } from "react-icons/ai"
+import { text } from "stream/consumers"
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
@@ -34,9 +35,10 @@ export default function App() {
   }
 
   async function handleUpdate(e: any, id: string) {
+    e.preventDefault()
     const content = {
       _id: id,
-      update: "placeholder",
+      update: e.target[0].value,
     }
     await fetch("/api", {
       method: "PUT",
@@ -44,6 +46,14 @@ export default function App() {
       body: JSON.stringify(content),
     })
     mutate()
+  }
+
+  function handleEdit(id: string) {
+    const textareaElement = document.getElementById(id)
+    textareaElement?.focus()
+    textareaElement?.toggleAttribute("readOnly")
+    textareaElement?.classList.toggle("bg-transparent")
+    textareaElement?.classList.toggle("bg-neutral-500")
   }
 
   const { data, error, isLoading, mutate } = useSWR("/api", fetcher)
@@ -60,11 +70,11 @@ export default function App() {
             content: string
             _id: string
           }) => (
-            <li>
+            <li key={message._id} className="bg-neutral-300">
               <span className="mr-3">{message.author}</span>
               <span>{message.timestamp.toString()}</span>
               <AiFillEdit
-                onClick={(e) => handleUpdate(e, message._id)}
+                onClick={(e) => handleEdit(message._id)}
                 className="inline text-3xl"
               />
               <AiFillDelete
@@ -72,12 +82,26 @@ export default function App() {
                 className="inline text-3xl"
               />
               {/* <p>{message.content}</p> */}
-              <form>
+              <form onSubmit={(e) => handleUpdate(e, message._id)}>
                 <textarea
-                  className="text-black"
                   readOnly
-                  cols={30}
+                  onInput={(e) => {
+                    e.currentTarget.style.height = "24px"
+                    e.currentTarget.style.height =
+                      e.currentTarget.scrollHeight + "px"
+                  }}
+                  onKeyDown={(e) => {
+                    const previousValue = e.currentTarget.defaultValue
+                    if (e.key === "Escape" || e.key === "Enter")
+                      handleEdit(message._id)
+                    if (e.key === "Enter") {
+                      e.currentTarget.form?.requestSubmit()
+                    } else if (e.key === "Escape")
+                      e.currentTarget.value = previousValue
+                  }}
                   defaultValue={message.content}
+                  id={message._id}
+                  className="h-6 w-full resize-none bg-transparent focus:outline-none"
                 />
               </form>
             </li>
@@ -85,7 +109,11 @@ export default function App() {
         )}
       </ul>
       <form onSubmit={handleCreate}>
-        <input type="text" required className="text-black" />
+        <input
+          type="text"
+          required
+          className="outline outline-1 outline-black"
+        />
         <button>Send</button>
       </form>
     </main>
