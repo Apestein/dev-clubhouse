@@ -23,7 +23,7 @@ export default async function handler(
     case "POST":
       try {
         const message = await Message.create(req.body)
-        res.status(201).json({ data: message })
+        res.status(201).json(message)
       } catch (error) {
         res.status(400).json({ success: false })
       }
