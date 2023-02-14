@@ -70,11 +70,16 @@ export default function App() {
     el?.classList.toggle("bg-neutral-500")
   }
 
-  function setTextAreaHeight(e: any, id?: string) {
-    if (id) {
-      const el = document.getElementById(id)
-      el!.style.height = el?.scrollHeight + "px"
-    } else e.currentTarget.style.height = e.currentTarget.scrollHeight + "px"
+  function setTextAreaHeight(e: any) {
+    e.currentTarget.style.height = e.currentTarget.scrollHeight + "px"
+  }
+
+  function handleSubmitOrCancel(e: any, message: Message) {
+    const previousValue = e.currentTarget.dataset.default
+    if (e.key === "Escape" || e.key === "Enter") handleEdit(message._id)
+    if (e.key === "Enter") {
+      handleUpdate(e, message._id)
+    } else if (e.key === "Escape") e.currentTarget.textContent = previousValue!
   }
 
   const {
@@ -94,7 +99,7 @@ export default function App() {
             <span className="mr-3">{message.author}</span>
             <span>{message.timestamp.toString()}</span>
             <AiFillEdit
-              onClick={(e) => handleEdit(message._id)}
+              onClick={() => handleEdit(message._id)}
               className="inline text-3xl"
             />
             <AiFillDelete
@@ -102,15 +107,8 @@ export default function App() {
               className="inline text-3xl"
             />
             <p
-              onKeyDown={(e) => {
-                const previousValue = e.currentTarget.textContent
-                if (e.key === "Escape" || e.key === "Enter")
-                  handleEdit(message._id)
-                if (e.key === "Enter") {
-                  handleUpdate(e, message._id)
-                } else if (e.key === "Escape")
-                  e.currentTarget.textContent = previousValue
-              }}
+              onKeyDown={(e) => handleSubmitOrCancel(e, message)}
+              data-default={message.content}
               id={message._id}
               className="break-all p-1"
             >
