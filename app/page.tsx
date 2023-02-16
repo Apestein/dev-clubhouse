@@ -5,21 +5,22 @@ import * as Realm from "realm-web"
 import { AiFillEdit, AiFillDelete } from "react-icons/ai"
 
 export default function App() {
-  const app = new Realm.App({ id: "dev-clubhouse-iqyij" })
-  const [user, setUser] = useState<any>()
-  useEffect(() => {
-    const login = async () => {
-      const user = await app.logIn(Realm.Credentials.anonymous())
-      setUser(user)
-      const mongodb = app.currentUser?.mongoClient("mongodb-atlas")
-      const collection = mongodb?.db("message-board").collection("messages")
-      for await (const change of collection!.watch()) {
-        console.log(change)
-        mutate()
-      }
-    }
-    login()
-  }, [])
+  // const app = new Realm.App({ id: "dev-clubhouse-iqyij" })
+  // const [user, setUser] = useState<any>()
+  // useEffect(() => {
+  //   const login = async () => {
+  //     const user = await app.logIn(Realm.Credentials.anonymous())
+  //     setUser(user)
+  //     const mongodb = app.currentUser?.mongoClient("mongodb-atlas")
+  //     const collection = mongodb?.db("message-board").collection("messages")
+  //     console.log(collection!.watch())
+  //     for await (const change of collection!.watch()) {
+  //       console.log(change)
+  //       mutate()
+  //     }
+  //   }
+  //   login()
+  // }, [])
 
   async function handleCreate(e: any) {
     e.preventDefault()
@@ -92,7 +93,7 @@ export default function App() {
   if (isLoading) return "Loading..."
   return (
     <main className="flex min-h-screen flex-col items-center">
-      <h1>Min-Maxing Dev ClubHouse</h1>
+      <h1>Dev Hot Takes ClubHouse</h1>
       <ul>
         {messages?.map((message) => (
           <li key={message._id} className="w-96 bg-neutral-300">

@@ -1,19 +1,26 @@
 import { NextApiRequest, NextApiResponse } from "next"
 import dbConnect from "lib/dbConnect"
-import User from "@/models/User"
 import Message from "@/models/Message"
+import { authOptions } from "pages/api/auth/[...nextauth]"
+import { getServerSession } from "next-auth/next"
+import { getSession } from "next-auth/react"
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { method } = req
-
   await dbConnect()
+  // const session = await getSession({ req })
+  const session = await getServerSession(req, res, authOptions)
+  console.log(session)
+  const { method } = req
 
   switch (method) {
     case "GET":
       try {
+        // const messages = session
+        //   ? await Message.find({}, { __v: 0 })
+        //   : await Message.find({}, { __v: 0, author: 0 })
         const messages = await Message.find({}, { __v: 0 })
         res.status(200).json(messages)
       } catch (error) {
