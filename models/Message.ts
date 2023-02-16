@@ -4,6 +4,7 @@ const MessageSchema = new mongoose.Schema({
   author: String,
   timestamp: Date,
   content: String,
+  image: String,
 })
 
 export default mongoose.models.Message ||

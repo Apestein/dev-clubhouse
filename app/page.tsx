@@ -3,6 +3,9 @@ import useSWR from "swr"
 import React, { useState, useEffect } from "react"
 import * as Realm from "realm-web"
 import { AiFillEdit, AiFillDelete } from "react-icons/ai"
+import generateRandomAnimal from "random-animal-name"
+import { useSession } from "next-auth/react"
+import Image from "next/image"
 
 export default function App() {
   // const app = new Realm.App({ id: "dev-clubhouse-iqyij" })
@@ -25,9 +28,10 @@ export default function App() {
   async function handleCreate(e: any) {
     e.preventDefault()
     const content = {
-      author: "anon",
+      author: session?.user?.name,
       timestamp: new Date(),
       content: e.target[0].value,
+      image: session?.user?.image,
     }
     const res = await fetch("/api", {
       method: "POST",
@@ -83,6 +87,7 @@ export default function App() {
     } else if (e.key === "Escape") e.currentTarget.textContent = previousValue!
   }
 
+  const { data: session } = useSession()
   const {
     data: messages,
     error,
@@ -96,25 +101,40 @@ export default function App() {
       <h1>Dev Hot Takes ClubHouse</h1>
       <ul>
         {messages?.map((message) => (
-          <li key={message._id} className="w-96 bg-neutral-300">
-            <span className="mr-3">{message.author}</span>
-            <span>{message.timestamp.toString()}</span>
-            <AiFillEdit
-              onClick={() => handleEdit(message._id)}
-              className="inline text-3xl"
+          <li key={message._id} className="flex bg-neutral-300">
+            <Image
+              alt="profile-pic"
+              src={
+                message.image
+                  ? message.image
+                  : `https://api.dicebear.com/5.x/bottts/jpg?seed=${message._id}`
+              }
+              width={50}
+              height={50}
+              className="h-full"
             />
-            <AiFillDelete
-              onClick={() => handleDelete(message._id)}
-              className="inline text-3xl"
-            />
-            <p
-              onKeyDown={(e) => handleSubmitOrCancel(e, message)}
-              data-default={message.content}
-              id={message._id}
-              className="break-all p-1"
-            >
-              {message.content}
-            </p>
+            <div>
+              <span className="mr-3">
+                {message.author ? message.author : generateRandomAnimal()}
+              </span>
+              <span>{message.timestamp.toString()}</span>
+              <AiFillEdit
+                onClick={() => handleEdit(message._id)}
+                className="inline text-3xl"
+              />
+              <AiFillDelete
+                onClick={() => handleDelete(message._id)}
+                className="inline text-3xl"
+              />
+              <p
+                onKeyDown={(e) => handleSubmitOrCancel(e, message)}
+                data-default={message.content}
+                id={message._id}
+                className="break-all p-1"
+              >
+                {message.content}
+              </p>
+            </div>
           </li>
         ))}
       </ul>
@@ -136,5 +156,6 @@ type Message = {
   author: string
   timestamp: Date
   content: string
+  image: string
   _id: string
 }
