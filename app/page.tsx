@@ -101,7 +101,7 @@ export default function App() {
       <h1>Dev Hot Takes ClubHouse</h1>
       <ul>
         {messages?.map((message) => (
-          <li key={message._id} className="flex bg-neutral-300">
+          <li key={message._id} className="flex w-[80vw] bg-neutral-300">
             <Image
               alt="profile-pic"
               src={
@@ -130,7 +130,7 @@ export default function App() {
                 onKeyDown={(e) => handleSubmitOrCancel(e, message)}
                 data-default={message.content}
                 id={message._id}
-                className="break-all p-1"
+                className="break-all"
               >
                 {message.content}
               </p>
@@ -140,12 +140,15 @@ export default function App() {
       </ul>
       <form onSubmit={handleCreate}>
         <textarea
+          placeholder={session ? "Type message here" : "Must be signed in"}
           required
           maxLength={1000}
           onInput={(e) => setTextAreaHeight(e)}
-          className="outline outline-1 outline-black"
+          className="w-[80vw] resize-none outline outline-1 outline-black"
         />
-        <button>Send</button>
+        <button disabled={session ? false : true} className="block">
+          Send
+        </button>
       </form>
     </main>
   )

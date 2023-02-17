@@ -21,7 +21,6 @@ export default async function handler(
         const messages = session
           ? await Message.find({}, { __v: 0 })
           : await Message.find({}, { __v: 0, author: 0, image: 0 })
-        // const messages = await Message.find({}, { __v: 0 })
         res.status(200).json(messages)
       } catch (error) {
         res.status(400).json({ success: false })
