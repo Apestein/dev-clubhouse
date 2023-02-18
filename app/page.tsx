@@ -105,8 +105,9 @@ export default function App() {
             <Image
               alt="profile-pic"
               src={
-                message.image
-                  ? message.image
+                session
+                  ? message.image ||
+                    `https://api.dicebear.com/5.x/bottts/jpg?seed=${message.author}`
                   : `https://api.dicebear.com/5.x/bottts/jpg?seed=${message._id}`
               }
               width={50}

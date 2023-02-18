@@ -31,7 +31,10 @@ export default function Header() {
             <Image
               priority
               alt="profile-pic"
-              src={session?.user?.image!}
+              src={
+                session?.user?.image ||
+                `https://api.dicebear.com/5.x/bottts/jpg?seed=${session?.user?.email}`
+              }
               width={50}
               height={50}
             />
