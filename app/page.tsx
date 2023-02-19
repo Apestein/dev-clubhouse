@@ -3,27 +3,24 @@ import useSWR from "swr"
 import React, { useState, useEffect } from "react"
 import * as Realm from "realm-web"
 import { AiFillEdit, AiFillDelete } from "react-icons/ai"
+import { FaThumbsUp } from "react-icons/fa"
 import generateRandomAnimal from "random-animal-name"
 import { useSession } from "next-auth/react"
 import Image from "next/image"
 
 export default function App() {
-  // const app = new Realm.App({ id: "dev-clubhouse-iqyij" })
-  // const [user, setUser] = useState<any>()
-  // useEffect(() => {
-  //   const login = async () => {
-  //     const user = await app.logIn(Realm.Credentials.anonymous())
-  //     setUser(user)
-  //     const mongodb = app.currentUser?.mongoClient("mongodb-atlas")
-  //     const collection = mongodb?.db("message-board").collection("messages")
-  //     console.log(collection!.watch())
-  //     for await (const change of collection!.watch()) {
-  //       console.log(change)
-  //       mutate()
-  //     }
-  //   }
-  //   login()
-  // }, [])
+  const app = new Realm.App({ id: "dev-clubhouse-iqyij" })
+  useEffect(() => {
+    const login = async () => {
+      await app.logIn(Realm.Credentials.anonymous())
+      const mongodb = app.currentUser?.mongoClient("mongodb-atlas")
+      const collection = mongodb?.db("message-board").collection("messages")
+      for await (const change of collection!.watch()) {
+        mutate()
+      }
+    }
+    login()
+  }, [])
 
   async function handleCreate(e: any) {
     e.preventDefault()
@@ -32,6 +29,7 @@ export default function App() {
       timestamp: new Date(),
       content: e.target[0].value,
       image: session?.user?.image,
+      upvote: 0,
     }
     const res = await fetch("/api", {
       method: "POST",
@@ -39,9 +37,7 @@ export default function App() {
       body: JSON.stringify(content),
     })
     const data = await res.json()
-    mutate(
-      messages?.map((message) => (message._id === data._id ? data : message))
-    )
+    mutate([...messages!, data])
   }
 
   async function handleDelete(id: string) {
@@ -65,6 +61,19 @@ export default function App() {
       body: JSON.stringify(content),
     })
     mutate()
+  }
+
+  async function handleUpdateVote(id: string) {
+    const content = { _id: id, upvote: true }
+    const res = await fetch("/api", {
+      method: "PUT",
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify(content),
+    })
+    const data = await res.json()
+    mutate(
+      messages?.map((message) => (message._id === data._id ? data : message))
+    )
   }
 
   function handleEdit(id: string) {
@@ -119,14 +128,6 @@ export default function App() {
                 {message.author ? message.author : generateRandomAnimal()}
               </span>
               <span>{message.timestamp.toString()}</span>
-              <AiFillEdit
-                onClick={() => handleEdit(message._id)}
-                className="inline text-3xl"
-              />
-              <AiFillDelete
-                onClick={() => handleDelete(message._id)}
-                className="inline text-3xl"
-              />
               <p
                 onKeyDown={(e) => handleSubmitOrCancel(e, message)}
                 data-default={message.content}
@@ -136,6 +137,21 @@ export default function App() {
                 {message.content}
               </p>
             </div>
+            <i className="flex">
+              <FaThumbsUp
+                className="ml-3 text-2xl"
+                onClick={() => handleUpdateVote(message._id)}
+              />
+              <p className="mr-3 text-xl">{message.upvote} </p>
+              <AiFillEdit
+                onClick={() => handleEdit(message._id)}
+                className="text-3xl"
+              />
+              <AiFillDelete
+                onClick={() => handleDelete(message._id)}
+                className="text-3xl"
+              />
+            </i>
           </li>
         ))}
       </ul>
@@ -160,6 +176,7 @@ type Message = {
   author: string
   timestamp: Date
   content: string
-  image: string
+  image?: string
   _id: string
+  upvote: number
 }

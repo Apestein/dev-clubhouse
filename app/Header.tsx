@@ -4,15 +4,6 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 
 export default function Header() {
-  // const [user, setUser] = useState<any>(null)
-  // useEffect(() => {
-  //   async function fetchSession() {
-  //     const session = await getSession()
-  //     setUser(session?.user)
-  //     console.log(session)
-  //   }
-  //   fetchSession()
-  // }, [])
   const { data: session } = useSession()
   console.log(session)
   return (
@@ -33,7 +24,7 @@ export default function Header() {
               alt="profile-pic"
               src={
                 session?.user?.image ||
-                `https://api.dicebear.com/5.x/bottts/jpg?seed=${session?.user?.email}`
+                `https://api.dicebear.com/5.x/bottts/jpg?seed=${session?.user?.name}`
               }
               width={50}
               height={50}

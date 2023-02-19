@@ -5,6 +5,7 @@ const MessageSchema = new mongoose.Schema({
   timestamp: Date,
   content: String,
   image: String,
+  upvote: Number,
 })
 
 export default mongoose.models.Message ||
