@@ -2,8 +2,7 @@
 import useSWR from "swr"
 import React, { useState, useEffect } from "react"
 import * as Realm from "realm-web"
-import { AiFillEdit, AiFillDelete } from "react-icons/ai"
-import { FaThumbsUp } from "react-icons/fa"
+import { AiFillEdit, AiFillDelete, AiFillHeart } from "react-icons/ai"
 import generateRandomAnimal from "random-animal-name"
 import { useSession } from "next-auth/react"
 import Image from "next/image"
@@ -29,7 +28,7 @@ export default function App() {
       timestamp: new Date(),
       content: e.target[0].value,
       image: session?.user?.image,
-      upvote: 0,
+      hearts: 0,
     }
     const res = await fetch("/api", {
       method: "POST",
@@ -63,8 +62,8 @@ export default function App() {
     mutate()
   }
 
-  async function handleUpdateVote(id: string) {
-    const content = { _id: id, upvote: true }
+  async function handleUpdateHeart(id: string) {
+    const content = { _id: id, hearts: true }
     const res = await fetch("/api", {
       method: "PUT",
       headers: { "Content-type": "application/json" },
@@ -107,10 +106,14 @@ export default function App() {
   if (isLoading) return "Loading..."
   return (
     <main className="flex min-h-screen flex-col items-center">
-      <h1>Dev Hot Takes ClubHouse</h1>
+      <h1 className="text-3xl font-bold">Dev's Hot Takes ClubHouse</h1>
+      <h2 className="text-lg font-bold">
+        Please give a hot take or controversial opinion about certain
+        technologies or the tech industry in general
+      </h2>
       <ul>
         {messages?.map((message) => (
-          <li key={message._id} className="flex w-[80vw] bg-neutral-300">
+          <li key={message._id} className="flex w-[80vw] bg-zinc-200">
             <Image
               alt="profile-pic"
               src={
@@ -121,7 +124,6 @@ export default function App() {
               }
               width={50}
               height={50}
-              className="h-full"
             />
             <div>
               <span className="mr-3">
@@ -137,20 +139,14 @@ export default function App() {
                 {message.content}
               </p>
             </div>
-            <i className="flex">
-              <FaThumbsUp
-                className="ml-3 text-2xl"
-                onClick={() => handleUpdateVote(message._id)}
+            <i className="flex text-3xl text-neutral-700">
+              <AiFillHeart
+                className="ml-3 text-red-500"
+                onClick={() => handleUpdateHeart(message._id)}
               />
-              <p className="mr-3 text-xl">{message.upvote} </p>
-              <AiFillEdit
-                onClick={() => handleEdit(message._id)}
-                className="text-3xl"
-              />
-              <AiFillDelete
-                onClick={() => handleDelete(message._id)}
-                className="text-3xl"
-              />
+              <p className="mr-3 text-xl">{message.hearts} </p>
+              <AiFillEdit onClick={() => handleEdit(message._id)} />
+              <AiFillDelete onClick={() => handleDelete(message._id)} />
             </i>
           </li>
         ))}
@@ -178,5 +174,5 @@ type Message = {
   content: string
   image?: string
   _id: string
-  upvote: number
+  hearts: number
 }

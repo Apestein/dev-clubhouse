@@ -8,7 +8,7 @@ export default function Header() {
   console.log(session)
   return (
     <header>
-      <nav className="flex items-center gap-3">
+      <nav className="flex items-center justify-end gap-3">
         <Link href="/">None Members</Link>
         <Link href="/members">Members Only</Link>
         {session ? (

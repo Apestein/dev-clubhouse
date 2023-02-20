@@ -17,6 +17,7 @@ export default function Members() {
   function checkAnswer(e: any) {
     if (e.includes("translate(-50%, -50%)")) {
       toggleLottie()
+      document.getElementById("badge-message")?.classList.remove("hidden")
       lottieRef.current?.play()
     }
   }
@@ -26,7 +27,7 @@ export default function Members() {
   }
 
   return (
-    <main>
+    <main className="flex flex-col items-center">
       <Lottie
         className="fixed top-1/2 left-1/2 hidden h-auto w-1/2 -translate-y-1/2 -translate-x-1/2"
         lottieRef={lottieRef}
@@ -36,8 +37,10 @@ export default function Members() {
         loop={false}
         onComplete={toggleLottie}
       />
-      <h1>Solve the problem to receive your official developer badge</h1>
-      <h2>
+      <h2 className="text-xl font-bold">
+        Solve the problem to receive your official developer badge
+      </h2>
+      <h2 className="font-bold">
         Center a div horizontally and vertically not using flex-box or grid
       </h2>
       <CodeMirror
@@ -45,7 +48,11 @@ export default function Members() {
         height="200px"
         extensions={[css()]}
         onChange={checkAnswer}
+        className="ml-auto w-[80vw]"
       />
+      <h2 className="hidden text-xl font-bold" id="badge-message">
+        Now you are certified real web developer!
+      </h2>
     </main>
   )
 }

@@ -40,12 +40,12 @@ export default async function handler(
       try {
         if (!session)
           return res.status(400).json({ error: "not authenticated" })
-        const { _id, update, upvote } = req.body
+        const { _id, update, hearts } = req.body
         let message
-        if (upvote) {
+        if (hearts) {
           message = await Message.updateOne(
             { _id: _id },
-            { $inc: { upvote: 1 } }
+            { $inc: { hearts: 1 } }
           )
         } else
           message = await Message.updateOne(
