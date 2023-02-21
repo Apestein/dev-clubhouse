@@ -4,6 +4,7 @@ import { css } from "@codemirror/lang-css"
 import Lottie from "lottie-react"
 import badgeLottie from "assets/badge.json"
 import { useRef } from "react"
+import { dracula } from "@uiw/codemirror-theme-dracula"
 
 export default function Members() {
   const content = `.center-div {
@@ -29,7 +30,7 @@ export default function Members() {
   return (
     <main className="flex flex-col items-center">
       <Lottie
-        className="fixed top-1/2 left-1/2 hidden h-auto w-1/2 -translate-y-1/2 -translate-x-1/2"
+        className="fixed top-1/2 left-1/2 hidden -translate-y-1/2 -translate-x-1/2"
         lottieRef={lottieRef}
         id="lottie"
         animationData={badgeLottie}
@@ -44,6 +45,7 @@ export default function Members() {
         Center a div horizontally and vertically not using flex-box or grid
       </h2>
       <CodeMirror
+        theme={dracula}
         value={content}
         height="200px"
         extensions={[css()]}
@@ -51,7 +53,7 @@ export default function Members() {
         className="w-[80vw]"
       />
       <h2 className="hidden text-xl font-bold" id="badge-message">
-        Now you are certified real web developer!
+        Now you are a certified real web developer!
       </h2>
     </main>
   )

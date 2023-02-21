@@ -71,9 +71,19 @@ export default function App() {
       body: JSON.stringify(content),
     })
     const data = await res.json()
-    mutate(
-      messages?.map((message) => (message._id === data._id ? data : message))
-    )
+    console.log(data)
+    return data
+  }
+
+  function updateLocalHeart(id: string) {
+    mutate(handleUpdateHeart(id), {
+      optimisticData: messages?.map((message) =>
+        message._id === id
+          ? { ...message, hearts: message.hearts + 1 }
+          : message
+      ),
+      rollbackOnError: true,
+    })
   }
 
   function handleEdit(id: string) {
@@ -107,14 +117,13 @@ export default function App() {
   if (isLoading) return "Loading..."
   return (
     <main className="flex flex-col items-center">
-      <h1 className="text-3xl font-bold">Dev's Hot Takes ClubHouse</h1>
       <h2 className="text-lg font-bold">
         Please give a hot take or controversial opinion about certain
         technologies or the tech industry in general
       </h2>
       <ul>
         {messages?.map((message) => (
-          <li key={message._id} className="flex w-[80vw] bg-zinc-200">
+          <li key={message._id} className="flex w-[80vw] bg-zinc-200 p-3">
             <Image
               alt="profile-pic"
               src={
@@ -141,14 +150,12 @@ export default function App() {
                 {message.content}
               </p>
             </div>
-            <i className="flex text-3xl text-neutral-700">
+            <i className="ml-auto flex text-3xl text-neutral-700">
               <AiFillHeart
-                className="ml-3 text-red-500"
-                onClick={() => handleUpdateHeart(message._id)}
+                className="active:heart-glow ml-3 text-red-500 hover:scale-125"
+                onClick={() => updateLocalHeart(message._id)}
               />
               <p className="mr-3 text-xl">{message.hearts} </p>
-              {/* <AiFillEdit onClick={() => handleEdit(message._id)} />
-              <AiFillDelete onClick={() => handleDelete(message._id)} /> */}
               {session?.user?.email === message.email && (
                 <>
                   <AiFillEdit onClick={() => handleEdit(message._id)} />
@@ -169,7 +176,7 @@ export default function App() {
         />
         <button
           disabled={session ? false : true}
-          className="block rounded-xl bg-green-500 px-3 py-1 text-black"
+          className="block h-12 items-center justify-center gap-2 whitespace-nowrap rounded bg-emerald-500 px-6 text-sm font-medium tracking-wide text-white transition duration-300 hover:bg-emerald-600 focus:bg-emerald-700 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-emerald-300 disabled:bg-emerald-300 disabled:shadow-none"
         >
           SEND
         </button>
