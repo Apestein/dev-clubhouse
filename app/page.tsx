@@ -25,6 +25,7 @@ export default function App() {
     e.preventDefault()
     const content = {
       author: session?.user?.name,
+      email: session?.user?.email,
       timestamp: new Date(),
       content: e.target[0].value,
       image: session?.user?.image,
@@ -105,7 +106,7 @@ export default function App() {
   if (error) return "An error has occurred."
   if (isLoading) return "Loading..."
   return (
-    <main className="flex min-h-screen flex-col items-center">
+    <main className="flex flex-col items-center">
       <h1 className="text-3xl font-bold">Dev's Hot Takes ClubHouse</h1>
       <h2 className="text-lg font-bold">
         Please give a hot take or controversial opinion about certain
@@ -124,8 +125,9 @@ export default function App() {
               }
               width={50}
               height={50}
+              className="h-full rounded-full"
             />
-            <div>
+            <div className="p-1">
               <span className="mr-3">
                 {message.author ? message.author : generateRandomAnimal()}
               </span>
@@ -134,7 +136,7 @@ export default function App() {
                 onKeyDown={(e) => handleSubmitOrCancel(e, message)}
                 data-default={message.content}
                 id={message._id}
-                className="break-all"
+                className="break-all outline-none"
               >
                 {message.content}
               </p>
@@ -145,8 +147,14 @@ export default function App() {
                 onClick={() => handleUpdateHeart(message._id)}
               />
               <p className="mr-3 text-xl">{message.hearts} </p>
-              <AiFillEdit onClick={() => handleEdit(message._id)} />
-              <AiFillDelete onClick={() => handleDelete(message._id)} />
+              {/* <AiFillEdit onClick={() => handleEdit(message._id)} />
+              <AiFillDelete onClick={() => handleDelete(message._id)} /> */}
+              {session?.user?.email === message.email && (
+                <>
+                  <AiFillEdit onClick={() => handleEdit(message._id)} />
+                  <AiFillDelete onClick={() => handleDelete(message._id)} />
+                </>
+              )}
             </i>
           </li>
         ))}
@@ -157,10 +165,13 @@ export default function App() {
           required
           maxLength={1000}
           onInput={(e) => setTextAreaHeight(e)}
-          className="w-[80vw] resize-none outline outline-1 outline-black"
+          className="w-[80vw] resize-none p-1 outline outline-1 outline-black"
         />
-        <button disabled={session ? false : true} className="block">
-          Send
+        <button
+          disabled={session ? false : true}
+          className="block rounded-xl bg-green-500 px-3 py-1 text-black"
+        >
+          SEND
         </button>
       </form>
     </main>
@@ -170,6 +181,7 @@ export default function App() {
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
 type Message = {
   author: string
+  email: string
   timestamp: Date
   content: string
   image?: string

@@ -11,7 +11,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head />
-      <body>
+      <body className="text-neutral-700">
         <SessionProvider>
           <Header />
           {children}

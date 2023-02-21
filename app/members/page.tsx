@@ -48,7 +48,7 @@ export default function Members() {
         height="200px"
         extensions={[css()]}
         onChange={checkAnswer}
-        className="ml-auto w-[80vw]"
+        className="w-[80vw]"
       />
       <h2 className="hidden text-xl font-bold" id="badge-message">
         Now you are certified real web developer!
