@@ -1,1 +1,1 @@
-Full-stack realtime CRUD messaging board app with NextJS and MongoDB
+Full-stack realtime CRUD posting board app where users can post hot takes or controversial opinions about certain technologies or the tech industry as a whole. Built with NextJS and MongoDB/Mongoose ORM. NextAuth for user authentication.
