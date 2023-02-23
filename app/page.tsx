@@ -1,11 +1,12 @@
 "use client"
 import useSWR from "swr"
-import React, { useState, useEffect } from "react"
+import React, { useEffect } from "react"
 import * as Realm from "realm-web"
 import { AiFillEdit, AiFillDelete, AiFillHeart } from "react-icons/ai"
 import generateRandomAnimal from "random-animal-name"
 import { useSession } from "next-auth/react"
 import Image from "next/image"
+import SpinnerXlBasicHalf from "./Spinner"
 
 export default function App() {
   const app = new Realm.App({ id: "dev-clubhouse-iqyij" })
@@ -38,6 +39,7 @@ export default function App() {
     })
     const data = await res.json()
     mutate([...messages!, data])
+    e.target.reset()
   }
 
   async function handleDelete(id: string) {
@@ -91,7 +93,7 @@ export default function App() {
     el?.toggleAttribute("contentEditable")
     el?.focus()
     el?.classList.toggle("bg-transparent")
-    el?.classList.toggle("bg-neutral-500")
+    el?.classList.toggle("bg-zinc-200")
   }
 
   function setTextAreaHeight(e: any) {
@@ -114,7 +116,7 @@ export default function App() {
     mutate,
   } = useSWR<Message[]>("/api", fetcher)
   if (error) return "An error has occurred."
-  if (isLoading) return "Loading..."
+  if (isLoading) return <SpinnerXlBasicHalf />
   return (
     <main className="flex flex-col items-center">
       <h2 className="text-lg font-bold">
@@ -123,7 +125,10 @@ export default function App() {
       </h2>
       <ul>
         {messages?.map((message) => (
-          <li key={message._id} className="flex w-[80vw] bg-zinc-200 p-3">
+          <li
+            key={message._id}
+            className="flex w-[80vw] bg-emerald-100 p-3 text-xs"
+          >
             <Image
               alt="profile-pic"
               src={
@@ -136,11 +141,27 @@ export default function App() {
               height={50}
               className="h-full rounded-full"
             />
-            <div className="p-1">
-              <span className="mr-3">
-                {message.author ? message.author : generateRandomAnimal()}
-              </span>
-              <span>{message.timestamp.toString()}</span>
+            <div className="w-full p-1">
+              <div className="flex">
+                <p className="mr-3">
+                  {message.author ? message.author : generateRandomAnimal()}
+                </p>
+                <p>{new Date(message.timestamp).toLocaleString()}</p>
+                <i className="ml-auto inline-flex items-center text-xl text-neutral-700">
+                  <AiFillHeart
+                    className="active:heart-glow ml-3 text-red-500 hover:scale-125"
+                    onClick={() => updateLocalHeart(message._id)}
+                  />
+                  <p className="mr-3 text-xl">{message.hearts} </p>
+                  {(session?.user?.email === message.email ||
+                    session?.user?.email === "ltn2057@protonmail.com") && (
+                    <>
+                      <AiFillEdit onClick={() => handleEdit(message._id)} />
+                      <AiFillDelete onClick={() => handleDelete(message._id)} />
+                    </>
+                  )}
+                </i>
+              </div>
               <p
                 onKeyDown={(e) => handleSubmitOrCancel(e, message)}
                 data-default={message.content}
@@ -150,19 +171,6 @@ export default function App() {
                 {message.content}
               </p>
             </div>
-            <i className="ml-auto flex text-3xl text-neutral-700">
-              <AiFillHeart
-                className="active:heart-glow ml-3 text-red-500 hover:scale-125"
-                onClick={() => updateLocalHeart(message._id)}
-              />
-              <p className="mr-3 text-xl">{message.hearts} </p>
-              {session?.user?.email === message.email && (
-                <>
-                  <AiFillEdit onClick={() => handleEdit(message._id)} />
-                  <AiFillDelete onClick={() => handleDelete(message._id)} />
-                </>
-              )}
-            </i>
           </li>
         ))}
       </ul>
@@ -170,9 +178,8 @@ export default function App() {
         <textarea
           placeholder={session ? "Type message here" : "Must be signed in"}
           required
-          maxLength={1000}
-          onInput={(e) => setTextAreaHeight(e)}
-          className="w-[80vw] resize-none p-1 outline outline-1 outline-black"
+          maxLength={500}
+          className="h-20 w-[80vw] resize-none p-1 outline outline-1 outline-black"
         />
         <button
           disabled={session ? false : true}
@@ -189,7 +196,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json())
 type Message = {
   author: string
   email: string
-  timestamp: Date
+  timestamp: string
   content: string
   image?: string
   _id: string

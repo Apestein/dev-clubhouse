@@ -3,15 +3,13 @@ import dbConnect from "lib/dbConnect"
 import Message from "@/models/Message"
 import { authOptions } from "pages/api/auth/[...nextauth]"
 import { getServerSession } from "next-auth/next"
-import { getSession } from "next-auth/react"
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   await dbConnect()
-  const session = await getSession({ req })
-  // const session = await getServerSession(req, res, authOptions)
+  const session = await getServerSession(req, res, authOptions)
   console.log(session)
   const { method } = req
 
