@@ -38,10 +38,10 @@ export default function Members() {
         loop={false}
         onComplete={toggleLottie}
       />
-      <h2 className="text-xl font-bold">
+      <h2 className="text-center font-bold">
         Solve the problem to receive your official developer badge
       </h2>
-      <h2 className="font-bold">
+      <h2 className="text-center font-bold">
         Center a div horizontally and vertically not using flex-box or grid
       </h2>
       <CodeMirror

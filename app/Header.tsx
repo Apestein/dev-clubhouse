@@ -8,7 +8,7 @@ export default function Header() {
   console.log(session)
   return (
     <header>
-      <nav className="mb-6 flex flex-col items-center justify-between p-3 text-xs font-bold shadow-lg">
+      <nav className="mb-6 flex flex-col items-center justify-between p-3 text-xs font-bold shadow-lg md:flex-row md:text-base">
         <Logo />
         <div className="flex items-center gap-3">
           <Link href="/" className="hover:text-emerald-500">

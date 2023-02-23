@@ -78,6 +78,7 @@ export default function App() {
   }
 
   function updateLocalHeart(id: string) {
+    if (!session) return
     mutate(handleUpdateHeart(id), {
       optimisticData: messages?.map((message) =>
         message._id === id
@@ -94,10 +95,6 @@ export default function App() {
     el?.focus()
     el?.classList.toggle("bg-transparent")
     el?.classList.toggle("bg-zinc-200")
-  }
-
-  function setTextAreaHeight(e: any) {
-    e.currentTarget.style.height = e.currentTarget.scrollHeight + "px"
   }
 
   function handleSubmitOrCancel(e: any, message: Message) {
@@ -118,17 +115,14 @@ export default function App() {
   if (error) return "An error has occurred."
   if (isLoading) return <SpinnerXlBasicHalf />
   return (
-    <main className="flex flex-col items-center">
-      <h2 className="text-lg font-bold">
+    <main className="mb-3 flex flex-col items-center text-xs md:text-base">
+      <h2 className="text-center font-bold md:text-xl">
         Please give a hot take or controversial opinion about certain
         technologies or the tech industry in general
       </h2>
       <ul>
         {messages?.map((message) => (
-          <li
-            key={message._id}
-            className="flex w-[80vw] bg-emerald-100 p-3 text-xs"
-          >
+          <li key={message._id} className="flex w-[80vw] bg-emerald-100 p-3">
             <Image
               alt="profile-pic"
               src={
@@ -147,7 +141,7 @@ export default function App() {
                   {message.author ? message.author : generateRandomAnimal()}
                 </p>
                 <p>{new Date(message.timestamp).toLocaleString()}</p>
-                <i className="ml-auto inline-flex items-center text-xl text-neutral-700">
+                <i className="ml-auto inline-flex items-center text-xl text-neutral-700 md:text-3xl">
                   <AiFillHeart
                     className="active:heart-glow ml-3 text-red-500 hover:scale-125"
                     onClick={() => updateLocalHeart(message._id)}
@@ -166,7 +160,7 @@ export default function App() {
                 onKeyDown={(e) => handleSubmitOrCancel(e, message)}
                 data-default={message.content}
                 id={message._id}
-                className="break-all outline-none"
+                className="break-words outline-none"
               >
                 {message.content}
               </p>
@@ -178,7 +172,7 @@ export default function App() {
         <textarea
           placeholder={session ? "Type message here" : "Must be signed in"}
           required
-          maxLength={500}
+          maxLength={1000}
           className="h-20 w-[80vw] resize-none p-1 outline outline-1 outline-black"
         />
         <button
