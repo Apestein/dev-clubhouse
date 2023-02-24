@@ -30,7 +30,7 @@ export default function Members() {
   return (
     <main className="flex flex-col items-center">
       <Lottie
-        className="fixed top-1/2 left-1/2 hidden -translate-y-1/2 -translate-x-1/2"
+        className="fixed top-1/2 left-1/2 z-10 hidden -translate-y-1/2 -translate-x-1/2"
         lottieRef={lottieRef}
         id="lottie"
         animationData={badgeLottie}
