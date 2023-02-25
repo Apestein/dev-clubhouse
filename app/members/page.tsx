@@ -2,7 +2,7 @@
 import CodeMirror from "@uiw/react-codemirror"
 import { css } from "@codemirror/lang-css"
 import Lottie from "lottie-react"
-import badgeLottie from "assets/badge.json"
+import badgeLottie from "public/badge.json"
 import { useRef } from "react"
 import { dracula } from "@uiw/codemirror-theme-dracula"
 
