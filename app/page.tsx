@@ -160,7 +160,7 @@ export default function App() {
                 onKeyDown={(e) => handleSubmitOrCancel(e, message)}
                 data-default={message.content}
                 id={message._id}
-                className="break-words outline-none"
+                className="break-words break-all outline-none"
               >
                 {message.content}
               </p>
