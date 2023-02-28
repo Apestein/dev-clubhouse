@@ -204,7 +204,7 @@ export default function App() {
           SEND
         </button>
       </form>
-      <div className="btn-group">
+      {/* <div className="btn-group">
         {totalPages?.map((page) => (
           <button
             key={page}
@@ -214,7 +214,7 @@ export default function App() {
             {page}
           </button>
         ))}
-      </div>
+      </div> */}
     </main>
   )
 }
