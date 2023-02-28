@@ -1,6 +1,6 @@
 "use client"
 import useSWR from "swr"
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import * as Realm from "realm-web"
 import { AiFillEdit, AiFillDelete, AiFillHeart } from "react-icons/ai"
 import generateRandomAnimal from "random-animal-name"
@@ -9,18 +9,40 @@ import Image from "next/image"
 import SpinnerXlBasicHalf from "./Spinner"
 
 export default function App() {
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState<number[]>()
+  const {
+    BSON: { ObjectId },
+  } = Realm
   const app = new Realm.App({ id: "dev-clubhouse-iqyij" })
   useEffect(() => {
     const login = async () => {
       await app.logIn(Realm.Credentials.anonymous())
       const mongodb = app.currentUser?.mongoClient("mongodb-atlas")
       const collection = mongodb?.db("message-board").collection("messages")
+      const totalMessages = await collection?.count()
+      setTotalPages(
+        Array.from({ length: Math.ceil(totalMessages! / 10) }, (_, i) => i + 1)
+      )
       for await (const change of collection!.watch()) {
         mutate()
       }
     }
     login()
   }, [])
+
+  async function getPage(e: any) {
+    setCurrentPage(e.target.textContent)
+    const mongodb = app.currentUser?.mongoClient("mongodb-atlas")
+    const collection = mongodb?.db("message-board").collection("messages")
+    const options = {
+      sort: { timestamp: 1 },
+      skip: 10,
+      limit: 10,
+    }
+    const cursor = await collection?.find({}, options)
+    console.log(cursor)
+  }
 
   async function handleCreate(e: any) {
     e.preventDefault()
@@ -182,6 +204,17 @@ export default function App() {
           SEND
         </button>
       </form>
+      <div className="btn-group">
+        {totalPages?.map((page) => (
+          <button
+            key={page}
+            className={`btn ${currentPage == page ? "btn-active" : ""}`}
+            onClick={(e) => getPage(e)}
+          >
+            {page}
+          </button>
+        ))}
+      </div>
     </main>
   )
 }
