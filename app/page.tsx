@@ -11,9 +11,6 @@ import SpinnerXlBasicHalf from "./Spinner"
 export default function App() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState<number[]>()
-  const {
-    BSON: { ObjectId },
-  } = Realm
   const app = new Realm.App({ id: "dev-clubhouse-iqyij" })
   useEffect(() => {
     const login = async () => {
@@ -24,25 +21,12 @@ export default function App() {
       setTotalPages(
         Array.from({ length: Math.ceil(totalMessages! / 10) }, (_, i) => i + 1)
       )
-      for await (const change of collection!.watch()) {
-        mutate()
-      }
+      // for await (const change of collection!.watch()) {
+      //   mutate()
+      // }
     }
     login()
   }, [])
-
-  async function getPage(e: any) {
-    setCurrentPage(e.target.textContent)
-    const mongodb = app.currentUser?.mongoClient("mongodb-atlas")
-    const collection = mongodb?.db("message-board").collection("messages")
-    const options = {
-      sort: { timestamp: 1 },
-      skip: 10,
-      limit: 10,
-    }
-    const cursor = await collection?.find({}, options)
-    console.log(cursor)
-  }
 
   async function handleCreate(e: any) {
     e.preventDefault()
@@ -133,7 +117,7 @@ export default function App() {
     error,
     isLoading,
     mutate,
-  } = useSWR<Message[]>("/api", fetcher)
+  } = useSWR<Message[]>(`/api/${currentPage}`, fetcher)
   if (error) return "An error has occurred."
   if (isLoading) return <SpinnerXlBasicHalf />
   return (
@@ -204,17 +188,19 @@ export default function App() {
           SEND
         </button>
       </form>
-      {/* <div className="btn-group">
+      <div className="btn-group">
         {totalPages?.map((page) => (
           <button
             key={page}
-            className={`btn ${currentPage == page ? "btn-active" : ""}`}
-            onClick={(e) => getPage(e)}
+            className={`btn ${
+              currentPage == page ? "bg-green-400" : ""
+            } hover:bg-green-500`}
+            onClick={(e: any) => setCurrentPage(e.target.textContent)}
           >
             {page}
           </button>
         ))}
-      </div> */}
+      </div>
     </main>
   )
 }
