@@ -20,11 +20,11 @@ export default async function handler(
         const messages = session
           ? await Message.find()
               .sort({ timestamp: 1 })
-              .skip(+pageNumber! * 10 - 9)
+              .skip(+pageNumber! * 10 - 10)
               .limit(10)
           : await Message.find({}, { author: 0, image: 0 })
               .sort({ timestamp: 1 })
-              .skip(+pageNumber! * 10 - 9)
+              .skip(+pageNumber! * 10 - 10)
               .limit(10)
         console.log(messages)
         res.status(200).json(messages)

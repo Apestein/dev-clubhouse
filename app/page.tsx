@@ -21,9 +21,9 @@ export default function App() {
       setTotalPages(
         Array.from({ length: Math.ceil(totalMessages! / 10) }, (_, i) => i + 1)
       )
-      // for await (const change of collection!.watch()) {
-      //   mutate()
-      // }
+      for await (const change of collection!.watch()) {
+        mutate()
+      }
     }
     login()
   }, [])

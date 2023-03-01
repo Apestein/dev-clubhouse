@@ -12,7 +12,7 @@ export default function Header() {
         <Logo />
         <div className="flex items-center gap-3">
           <Link href="/" className="hover:text-emerald-500">
-            None Members
+            Home
           </Link>
           <div className="h-5 w-px bg-black opacity-25" />
           <Link href="/members" className="hover:text-emerald-500">
