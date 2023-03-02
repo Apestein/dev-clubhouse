@@ -9,9 +9,21 @@ import Image from "next/image"
 import SpinnerXlBasicHalf from "./Spinner"
 
 export default function App() {
+  const app = new Realm.App({ id: "dev-clubhouse-iqyij" })
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState<number[]>()
-  const app = new Realm.App({ id: "dev-clubhouse-iqyij" })
+
+  // const fetchTotalPages = async () => {
+  //   const mongodb = app.currentUser?.mongoClient("mongodb-atlas")
+  //   const collection = mongodb?.db("message-board").collection("messages")
+  //   const totalMessages = await collection?.count()
+  //   return Array.from(
+  //     { length: Math.ceil(totalMessages! / 10) },
+  //     (_, i) => i + 1
+  //   )
+  // }
+  // const { data: totalPages } = useSWR("key", fetchTotalPages)
+
   useEffect(() => {
     const login = async () => {
       await app.logIn(Realm.Credentials.anonymous())
@@ -43,9 +55,9 @@ export default function App() {
       headers: { "Content-type": "application/json" },
       body: JSON.stringify(content),
     })
-    const data = await res.json()
-    // mutate([...messages!, data])
     mutate()
+    // const data = await res.json()
+    // mutate([...messages!, data])
     e.target.reset()
   }
 
