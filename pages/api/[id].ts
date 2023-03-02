@@ -11,20 +11,20 @@ export default async function handler(
   await dbConnect()
   const session = await getServerSession(req, res, authOptions)
   const method = req.method
-  const pageNumber = req.query.id
-  if (!Number.isInteger(+pageNumber!)) res.status(400).json("not a number")
+  const pageNumber = +req.query.id!
 
   switch (method) {
     case "GET":
       try {
+        const totalPages = Math.ceil((await Message.count()) / 10)
         const messages = session
           ? await Message.find()
               .sort({ timestamp: 1 })
-              .skip(+pageNumber! * 10 - 10)
+              .skip((totalPages - pageNumber) * 10)
               .limit(10)
           : await Message.find({}, { author: 0, image: 0 })
               .sort({ timestamp: 1 })
-              .skip(+pageNumber! * 10 - 10)
+              .skip((totalPages - pageNumber) * 10)
               .limit(10)
         console.log(messages)
         res.status(200).json(messages)
@@ -32,5 +32,17 @@ export default async function handler(
         res.status(400).json({ success: false })
       }
       break
+    case "PUT":
+      try {
+        const msgID = req.query.msgID
+        await Message.updateOne({ _id: msgID }, { $inc: { hearts: 1 } })
+        const data = await Message.find()
+          .sort({ timestamp: -1 })
+          .skip(pageNumber * 10 - 10)
+          .limit(10)
+        res.status(200).json(data)
+      } catch (error) {
+        res.status(400).json({ success: false })
+      }
   }
 }

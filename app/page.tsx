@@ -44,7 +44,8 @@ export default function App() {
       body: JSON.stringify(content),
     })
     const data = await res.json()
-    mutate([...messages!, data])
+    // mutate([...messages!, data])
+    mutate()
     e.target.reset()
   }
 
@@ -72,14 +73,10 @@ export default function App() {
   }
 
   async function handleUpdateHeart(id: string) {
-    const content = { _id: id, hearts: true }
-    const res = await fetch("/api", {
+    const res = await fetch(`/api/${currentPage}?msgID=${id}`, {
       method: "PUT",
-      headers: { "Content-type": "application/json" },
-      body: JSON.stringify(content),
     })
     const data = await res.json()
-    console.log(data)
     return data
   }
 
@@ -126,7 +123,7 @@ export default function App() {
         Please give a hot take or controversial opinion about certain
         technologies or the tech industry in general
       </h2>
-      <ul>
+      <ul className="">
         {messages?.map((message) => (
           <li key={message._id} className="flex w-[80vw] bg-emerald-100 p-3">
             <Image

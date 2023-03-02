@@ -14,16 +14,16 @@ export default async function handler(
   const { method } = req
 
   switch (method) {
-    case "GET":
-      try {
-        const messages = session
-          ? await Message.find({}, { __v: 0 }).limit(10)
-          : await Message.find({}, { __v: 0, author: 0, image: 0 }).limit(10)
-        res.status(200).json(messages)
-      } catch (error) {
-        res.status(400).json({ success: false })
-      }
-      break
+    // case "GET":
+    //   try {
+    //     const messages = session
+    //       ? await Message.find({}, { __v: 0 }).limit(10)
+    //       : await Message.find({}, { __v: 0, author: 0, image: 0 }).limit(10)
+    //     res.status(200).json(messages)
+    //   } catch (error) {
+    //     res.status(400).json({ success: false })
+    //   }
+    //   break
     case "POST":
       try {
         if (!session)
