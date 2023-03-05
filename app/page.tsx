@@ -1,6 +1,6 @@
 "use client"
 import useSWR from "swr"
-import React, { useEffect, useState } from "react"
+import React, { useEffect } from "react"
 import * as Realm from "realm-web"
 import { AiFillEdit, AiFillDelete, AiFillHeart } from "react-icons/ai"
 import generateRandomAnimal from "random-animal-name"
