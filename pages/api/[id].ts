@@ -12,7 +12,7 @@ export default async function handler(
   const session = await getServerSession(req, res, authOptions)
   const method = req.method
   const pageNumber = +req.query.id!
-  const totalPages = Math.ceil((await Message.count()) / 10)
+  const totalPages = Math.ceil((await Message.count()) / 20)
 
   switch (method) {
     case "GET":
@@ -25,12 +25,12 @@ export default async function handler(
         const messages = session
           ? await Message.find()
               .sort({ timestamp: 1 })
-              .skip((totalPages - pageNumber) * 10)
-              .limit(10)
+              .skip((totalPages - pageNumber) * 20)
+              .limit(20)
           : await Message.find({}, { author: 0, image: 0 })
               .sort({ timestamp: 1 })
-              .skip((totalPages - pageNumber) * 10)
-              .limit(10)
+              .skip((totalPages - pageNumber) * 20)
+              .limit(20)
         res.status(200).json(messages)
       } catch (error) {
         res.status(400).json({ success: false })
@@ -42,8 +42,8 @@ export default async function handler(
         await Message.updateOne({ _id: msgID }, { $inc: { hearts: 1 } })
         const messages = await Message.find()
           .sort({ timestamp: 1 })
-          .skip((totalPages - pageNumber) * 10)
-          .limit(10)
+          .skip((totalPages - pageNumber) * 20)
+          .limit(20)
         res.status(200).json(messages)
       } catch (error) {
         res.status(400).json({ success: false })

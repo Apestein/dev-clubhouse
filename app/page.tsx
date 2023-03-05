@@ -1,6 +1,6 @@
 "use client"
 import useSWR from "swr"
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import * as Realm from "realm-web"
 import { AiFillEdit, AiFillDelete, AiFillHeart } from "react-icons/ai"
 import generateRandomAnimal from "random-animal-name"
@@ -10,7 +10,7 @@ import SpinnerXlBasicHalf from "./Spinner"
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState(1)
-  // const [totalPages, setTotalPages] = useState<number[]>()
+  const [totalPages, setTotalPages] = useState<number[]>()
 
   const { data: session } = useSession()
   const {
@@ -19,32 +19,28 @@ export default function App() {
     isLoading,
     mutate,
   } = useSWR<Message[]>(`/api/${currentPage}`, fetcher)
-  const { data: totalPages } = useSWR("/api/count", fetcher)
+  // const { data: totalPages } = useSWR("/api/count", fetcher)
 
   const app = new Realm.App({ id: "dev-clubhouse-iqyij" })
   const mongodb = app.currentUser?.mongoClient("mongodb-atlas")
   const collection = mongodb?.db("message-board").collection("messages")
 
   useEffect(() => {
-    const login = async () => {
+    ;(async () => {
       await app.logIn(Realm.Credentials.anonymous())
       for await (const change of collection!.watch()) {
         mutate()
       }
-    }
-    login()
+    })()
   }, [])
 
-  // useEffect(() => {
-  //   ;async () => {
-  //     const totalMessages = await collection?.count()
-  //     const pagesArray = Array.from(
-  //       { length: Math.ceil(totalMessages! / 10) },
-  //       (_, i) => i + 1
-  //     )
-  //     setTotalPages(pagesArray)
-  //   }
-  // }, [])
+  useEffect(() => {
+    ;(async () => {
+      const res = await fetch("/api/count")
+      const data = await res.json()
+      setTotalPages(data)
+    })()
+  }, [messages?.length])
 
   async function handleCreate(e: any) {
     e.preventDefault()
@@ -197,7 +193,7 @@ export default function App() {
         </button>
       </form>
       <div className="btn-group">
-        {totalPages?.map((page) => (
+        {totalPages?.map((page: any) => (
           <button
             key={page}
             className={`btn ${
