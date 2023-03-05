@@ -12,11 +12,16 @@ export default async function handler(
   const session = await getServerSession(req, res, authOptions)
   const method = req.method
   const pageNumber = +req.query.id!
+  const totalPages = Math.ceil((await Message.count()) / 10)
 
   switch (method) {
     case "GET":
       try {
-        const totalPages = Math.ceil((await Message.count()) / 10)
+        if (req.query.id === "count") {
+          const pagesArray = Array.from({ length: totalPages }, (_, i) => i + 1)
+          return res.status(200).json(pagesArray)
+        }
+
         const messages = session
           ? await Message.find()
               .sort({ timestamp: 1 })
@@ -26,7 +31,6 @@ export default async function handler(
               .sort({ timestamp: 1 })
               .skip((totalPages - pageNumber) * 10)
               .limit(10)
-        console.log(messages)
         res.status(200).json(messages)
       } catch (error) {
         res.status(400).json({ success: false })
@@ -36,11 +40,11 @@ export default async function handler(
       try {
         const msgID = req.query.msgID
         await Message.updateOne({ _id: msgID }, { $inc: { hearts: 1 } })
-        const data = await Message.find()
-          .sort({ timestamp: -1 })
-          .skip(pageNumber * 10 - 10)
+        const messages = await Message.find()
+          .sort({ timestamp: 1 })
+          .skip((totalPages - pageNumber) * 10)
           .limit(10)
-        res.status(200).json(data)
+        res.status(200).json(messages)
       } catch (error) {
         res.status(400).json({ success: false })
       }

@@ -9,36 +9,42 @@ import Image from "next/image"
 import SpinnerXlBasicHalf from "./Spinner"
 
 export default function App() {
-  const app = new Realm.App({ id: "dev-clubhouse-iqyij" })
   const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState<number[]>()
+  // const [totalPages, setTotalPages] = useState<number[]>()
 
-  // const fetchTotalPages = async () => {
-  //   const mongodb = app.currentUser?.mongoClient("mongodb-atlas")
-  //   const collection = mongodb?.db("message-board").collection("messages")
-  //   const totalMessages = await collection?.count()
-  //   return Array.from(
-  //     { length: Math.ceil(totalMessages! / 10) },
-  //     (_, i) => i + 1
-  //   )
-  // }
-  // const { data: totalPages } = useSWR("key", fetchTotalPages)
+  const { data: session } = useSession()
+  const {
+    data: messages,
+    error,
+    isLoading,
+    mutate,
+  } = useSWR<Message[]>(`/api/${currentPage}`, fetcher)
+  const { data: totalPages } = useSWR("/api/count", fetcher)
+
+  const app = new Realm.App({ id: "dev-clubhouse-iqyij" })
+  const mongodb = app.currentUser?.mongoClient("mongodb-atlas")
+  const collection = mongodb?.db("message-board").collection("messages")
 
   useEffect(() => {
     const login = async () => {
       await app.logIn(Realm.Credentials.anonymous())
-      const mongodb = app.currentUser?.mongoClient("mongodb-atlas")
-      const collection = mongodb?.db("message-board").collection("messages")
-      const totalMessages = await collection?.count()
-      setTotalPages(
-        Array.from({ length: Math.ceil(totalMessages! / 10) }, (_, i) => i + 1)
-      )
       for await (const change of collection!.watch()) {
         mutate()
       }
     }
     login()
   }, [])
+
+  // useEffect(() => {
+  //   ;async () => {
+  //     const totalMessages = await collection?.count()
+  //     const pagesArray = Array.from(
+  //       { length: Math.ceil(totalMessages! / 10) },
+  //       (_, i) => i + 1
+  //     )
+  //     setTotalPages(pagesArray)
+  //   }
+  // }, [])
 
   async function handleCreate(e: any) {
     e.preventDefault()
@@ -55,9 +61,9 @@ export default function App() {
       headers: { "Content-type": "application/json" },
       body: JSON.stringify(content),
     })
-    mutate()
-    // const data = await res.json()
-    // mutate([...messages!, data])
+    // mutate()
+    const data = await res.json()
+    mutate([...messages!, data])
     e.target.reset()
   }
 
@@ -120,13 +126,6 @@ export default function App() {
     } else if (e.key === "Escape") e.currentTarget.textContent = previousValue!
   }
 
-  const { data: session } = useSession()
-  const {
-    data: messages,
-    error,
-    isLoading,
-    mutate,
-  } = useSWR<Message[]>(`/api/${currentPage}`, fetcher)
   if (error) return "An error has occurred."
   if (isLoading) return <SpinnerXlBasicHalf />
   return (
