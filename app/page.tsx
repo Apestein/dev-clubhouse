@@ -9,18 +9,38 @@ import Image from "next/image"
 import SpinnerXlBasicHalf from "./Spinner"
 
 export default function App() {
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState<number[]>()
+
+  const { data: session } = useSession()
+  const {
+    data: messages,
+    error,
+    isLoading,
+    mutate,
+  } = useSWR<Message[]>(`/api/${currentPage}`, fetcher)
+  // const { data: totalPages } = useSWR("/api/count", fetcher)
+
   const app = new Realm.App({ id: "dev-clubhouse-iqyij" })
+  const mongodb = app.currentUser?.mongoClient("mongodb-atlas")
+  const collection = mongodb?.db("message-board").collection("messages")
+
   useEffect(() => {
-    const login = async () => {
+    ;(async () => {
       await app.logIn(Realm.Credentials.anonymous())
-      const mongodb = app.currentUser?.mongoClient("mongodb-atlas")
-      const collection = mongodb?.db("message-board").collection("messages")
       for await (const change of collection!.watch()) {
         mutate()
       }
-    }
-    login()
+    })()
   }, [])
+
+  useEffect(() => {
+    ;(async () => {
+      const res = await fetch("/api/count")
+      const data = await res.json()
+      setTotalPages(data)
+    })()
+  }, [messages?.length])
 
   async function handleCreate(e: any) {
     e.preventDefault()
@@ -37,6 +57,7 @@ export default function App() {
       headers: { "Content-type": "application/json" },
       body: JSON.stringify(content),
     })
+    // mutate()
     const data = await res.json()
     mutate([...messages!, data])
     e.target.reset()
@@ -66,14 +87,10 @@ export default function App() {
   }
 
   async function handleUpdateHeart(id: string) {
-    const content = { _id: id, hearts: true }
-    const res = await fetch("/api", {
+    const res = await fetch(`/api/${currentPage}?msgID=${id}`, {
       method: "PUT",
-      headers: { "Content-type": "application/json" },
-      body: JSON.stringify(content),
     })
     const data = await res.json()
-    console.log(data)
     return data
   }
 
@@ -105,13 +122,6 @@ export default function App() {
     } else if (e.key === "Escape") e.currentTarget.textContent = previousValue!
   }
 
-  const { data: session } = useSession()
-  const {
-    data: messages,
-    error,
-    isLoading,
-    mutate,
-  } = useSWR<Message[]>("/api", fetcher)
   if (error) return "An error has occurred."
   if (isLoading) return <SpinnerXlBasicHalf />
   return (
@@ -120,7 +130,7 @@ export default function App() {
         Please give a hot take or controversial opinion about certain
         technologies or the tech industry in general
       </h2>
-      <ul>
+      <ul className="">
         {messages?.map((message) => (
           <li key={message._id} className="flex w-[80vw] bg-emerald-100 p-3">
             <Image
@@ -182,6 +192,19 @@ export default function App() {
           SEND
         </button>
       </form>
+      <div className="btn-group">
+        {totalPages?.map((page: any) => (
+          <button
+            key={page}
+            className={`btn ${
+              currentPage == page ? "bg-green-400" : ""
+            } hover:bg-green-500`}
+            onClick={(e: any) => setCurrentPage(e.target.textContent)}
+          >
+            {page}
+          </button>
+        ))}
+      </div>
     </main>
   )
 }
