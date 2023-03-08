@@ -7,6 +7,7 @@ const MessageSchema = new mongoose.Schema({
   content: String,
   image: String,
   hearts: Number,
+  liked: [String],
 })
 
 export default mongoose.models.Message ||

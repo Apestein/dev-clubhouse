@@ -86,20 +86,27 @@ export default function App() {
     mutate()
   }
 
-  async function handleUpdateHeart(id: string) {
-    const res = await fetch(`/api/${currentPage}?msgID=${id}`, {
-      method: "PUT",
-    })
+  async function handleUpdateHeart(id: string, isLiked: boolean) {
+    const res = await fetch(
+      `/api/${currentPage}?msgID=${id}&isLiked=${isLiked}`,
+      {
+        method: "PUT",
+      }
+    )
     const data = await res.json()
     return data
   }
 
-  function updateLocalHeart(id: string) {
+  function updateLocalHeart(targetMessage: Message) {
     if (!session) return
-    mutate(handleUpdateHeart(id), {
+    mutate(handleUpdateHeart(targetMessage._id, targetMessage.isLiked), {
       optimisticData: messages?.map((message) =>
-        message._id === id
-          ? { ...message, hearts: message.hearts + 1 }
+        message._id === targetMessage._id
+          ? {
+              ...message,
+              hearts: message.isLiked ? --message.hearts : ++message.hearts,
+              isLiked: !message.isLiked,
+            }
           : message
       ),
       rollbackOnError: true,
@@ -153,8 +160,10 @@ export default function App() {
                 <p>{new Date(message.timestamp).toLocaleString()}</p>
                 <i className="ml-auto inline-flex items-center text-xl text-neutral-700 md:text-3xl">
                   <AiFillHeart
-                    className="active:heart-glow ml-3 text-red-500 hover:scale-125"
-                    onClick={() => updateLocalHeart(message._id)}
+                    className={`ml-3 text-red-500 hover:scale-125 ${
+                      message.isLiked ? "heart-glow" : ""
+                    }`}
+                    onClick={() => updateLocalHeart(message)}
                   />
                   <p className="mr-3 text-xl">{message.hearts} </p>
                   {(session?.user?.email === message.email ||
@@ -215,7 +224,8 @@ type Message = {
   email: string
   timestamp: string
   content: string
-  image?: string
+  image: string
   _id: string
   hearts: number
+  isLiked: boolean
 }

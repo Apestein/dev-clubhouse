@@ -31,20 +31,49 @@ export default async function handler(
               .sort({ timestamp: 1 })
               .skip((totalPages - pageNumber) * 20)
               .limit(20)
-        res.status(200).json(messages)
+        const returnedMessages = messages.map((message) => {
+          const doc = message._doc
+          const { liked, ...rest } = doc
+          if (liked.includes(session?.user?.email))
+            return { ...rest, isLiked: true }
+          else return { ...rest, isLiked: false }
+        })
+        res.status(200).json(returnedMessages)
       } catch (error) {
         res.status(400).json({ success: false })
       }
       break
     case "PUT":
       try {
-        const msgID = req.query.msgID
-        await Message.updateOne({ _id: msgID }, { $inc: { hearts: 1 } })
+        const { msgID, isLiked } = req.query
+        if (isLiked === "false")
+          await Message.updateOne(
+            { _id: msgID },
+            {
+              $push: { liked: session?.user?.email },
+              $inc: { hearts: 1 },
+            }
+          )
+        else
+          await Message.updateOne(
+            { _id: msgID },
+            {
+              $pull: { liked: session?.user?.email },
+              $inc: { hearts: -1 },
+            }
+          )
         const messages = await Message.find()
           .sort({ timestamp: 1 })
           .skip((totalPages - pageNumber) * 20)
           .limit(20)
-        res.status(200).json(messages)
+        const returnedMessages = messages.map((message) => {
+          const doc = message._doc
+          const { liked, ...rest } = doc
+          if (liked.includes(session?.user?.email))
+            return { ...rest, isLiked: true }
+          else return { ...rest, isLiked: false }
+        })
+        res.status(200).json(returnedMessages)
       } catch (error) {
         res.status(400).json({ success: false })
       }
