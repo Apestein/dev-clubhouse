@@ -6,7 +6,7 @@ _Features:_
 
 - Real Time CRUD App
 - 0Auth Authentication
-- Protected Pages & API Routes
+- Protected Pages & APIs
 - User Authorization
 - Pagination
 - Like/Dislike
